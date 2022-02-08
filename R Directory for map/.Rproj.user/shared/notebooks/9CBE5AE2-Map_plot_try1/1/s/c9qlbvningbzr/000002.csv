@@ -1,0 +1,11 @@
+"0","#previously"
+"0","fillLabels=c('1_worst',2,'3_best')"
+"0","fillTitle=""Cities safety"""
+"0","nameSize=""Population \n(in millions)"""
+"0",""
+"0","points= base + geom_sf(data=idxcity_sf,"
+"0","                       shape=21,"
+"0","                       aes(fill=cluster,"
+"0","                           size=population/1000000)) "
+"2","Error in fortify(data) : object 'idxcity_sf' not found
+"

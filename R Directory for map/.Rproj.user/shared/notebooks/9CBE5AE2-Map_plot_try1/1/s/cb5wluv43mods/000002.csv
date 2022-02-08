@@ -1,0 +1,9 @@
+"0","#Load College Scorecard for Flagship Universities"
+"0","library(readxl)"
+"2","Warning:"
+"2"," package ‘readxl’ was built under R version 4.0.5
+"
+"0","url <- ""https://raw.githubusercontent.com/tconkling47/543_Deliverable_3_Map/main/Flagship_State_Universities.xlsx"""
+"0","destfile <- ""Flagship_State_Universities.xlsx"""
+"0","curl::curl_download(url, destfile)"
+"0","flagships <- read_excel(destfile)"

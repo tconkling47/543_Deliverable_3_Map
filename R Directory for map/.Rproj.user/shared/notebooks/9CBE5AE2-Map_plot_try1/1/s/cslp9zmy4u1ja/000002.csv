@@ -1,0 +1,2 @@
+"0","data3 <- data2 %>%"
+"0","  mutate(total_debt = DEBT_ALL_STGP_ANY_N*DEBT_ALL_STGP_ANY_MEAN)"

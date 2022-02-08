@@ -1,0 +1,4 @@
+"0","flagships_sf = st_as_sf(flagships4,"
+"0","                        coords = c(""LONGITUDE"", ""LATITUDE""),"
+"0","                        crs = st_crs(mapUSA)"
+"0","                        )"
