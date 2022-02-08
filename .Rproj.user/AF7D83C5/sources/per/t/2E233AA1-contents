@@ -1,0 +1,291 @@
+<br> 
+<center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
+
+
+## Course: VISUAL ANALYTICS FOR POLICY AND MANAGEMENT
+
+### Prof. José Manuel Magallanes, PhD 
+* Visiting Professor of Computational Policy at Evans School of Public Policy and Governance, and eScience Institute Senior Data Science Fellow, University of Washington.
+* Professor of Government and Political Methodology, Pontificia Universidad Católica del Perú. 
+
+
+_____
+
+
+# Spatial Data
+_____
+
+
+<a id='open'></a>
+
+# Opening data files
+
+Let's open this file that includes the _democracy index_, the _human development index_, and the _military expenditures  as share of gdp_, all at the country level:
+
+```{r, eval=TRUE}
+
+linkCSV='https://github.com/EvansDataScience/VAforPM_Spatial/raw/main/merged_data.csv'
+
+dataCSV=read.csv(linkCSV)
+```
+
+This is what we have:
+
+```{r, eval=TRUE}
+str(dataCSV)
+```
+
+Let's explore the behavior of each numerical variable:
+
+```{r, eval=TRUE}
+boxplot(dataCSV[,c('DemoIndex','HDI','mil_expend')])
+```
+The data ranges are different. We can try **standardization**:
+
+```{r, eval=TRUE}
+dataCSV$HDI_S=as.vector(scale(dataCSV$HDI))
+dataCSV$DEM_S=as.vector(scale(dataCSV$DemoIndex))
+dataCSV$MIL_S=as.vector(scale(dataCSV$mil_expend))
+```
+
+Let's cluster the data using **pam** again:
+
+```{r, eval=TRUE}
+
+
+set.seed(123)
+
+library(cluster)
+vars=c('HDI_S','DEM_S','MIL_S')#variables needed
+
+distMatrix=cluster::daisy(dataCSV[,vars])
+          
+res.pam=cluster::pam(x=distMatrix,
+                     k = 3,
+                     cluster.only = F)
+
+```
+
+Let's save the cluster info into the data frame:
+
+```{r, eval=TRUE}
+dataCSV$cluster=as.factor(res.pam$clustering)
+```
+
+Check order:
+
+```{r, eval=TRUE}
+theVars=c('HDI_S','DEM_S','MIL_S','cluster')
+aggregate(.~cluster,
+          data=dataCSV[,theVars],
+          FUN=median)
+```
+
+We could recode so that number ordering make sense:
+
+```{r, eval=TRUE}
+dataCSV$cluster=factor(dataCSV$cluster,
+                           levels=c(1,3,2),
+                           labels=c("low","mid","best"), 
+                           ordered=T)
+```
+
+
+Now, let me open the map:
+
+
+```{r, eval=TRUE}
+linkMap="https://github.com/EvansDataScience/VAforPM_Spatial/raw/main/worldMap.geojson" 
+
+library(sf)
+mapWorld=read_sf(linkMap)
+```
+
+This is the data that came with the map:
+
+```{r, eval=TRUE}
+# see data in map
+head(mapWorld)
+```
+The map also shows important information that common data frames, especially the CRS. The CRS tells information about the map projection. In case you want to produce other maps you need that these have the same CRS.
+
+Let's add our data to the map by merging:
+
+```{r, eval=TRUE}
+mapWorldVars=merge(mapWorld, #map first
+                   dataCSV, 
+                   by='ISO3') 
+```
+
+
+We can map the data now using _ggplot_. Let me do it by layers:
+
+1. Base layer: 
+
+```{r, eval=TRUE}
+library(ggplot2)
+# plot original map
+base=ggplot(data=mapWorld) + geom_sf(fill='grey90',
+                                     color=NA) + theme_classic()
+
+base #base map
+
+```
+
+2. Data layer:
+
+This will be plot on top of the previous. Whatever is still in grey means a country has no information:
+
+```{r, eval=TRUE}
+colMap= base + geom_sf(data=mapWorldVars,
+                       aes(fill=DemoIndex),
+                       color=NA)
+colMap
+```
+
+We can alter the color sequence:
+
+```{r, eval=TRUE}
+colMap + scale_fill_gradient(low = 'red',
+                             high= 'blue')
+```
+
+
+Now paint the countries using the cluster information (ggplot decides color):
+
+```{r, eval=TRUE}
+clusterMap= base + geom_sf(data=mapWorldVars,
+                           aes(fill=cluster),
+                           color=NA) # color of border
+clusterMap 
+```
+
+Now we choose the palette (get it from [here](http://colorbrewer2.org/)):
+
+```{r, eval=TRUE}
+clusterMap+ scale_fill_brewer(palette ='YlOrRd')
+```
+
+
+Some more customization:
+
+```{r, eval=TRUE}
+#previously
+theLegLabels=c('1_worst',2,'3_best')
+theLegTitle="World_Order\n(grey is missing)"
+
+#now
+clusterMap+ scale_fill_brewer(palette ='YlOrRd',
+                              direction = -1, # color order
+                              labels=theLegLabels,
+                              name=theLegTitle)
+```
+
+Let me make other map by bringing a data set on cities:
+
+```{r, eval=TRUE}
+library(rio)
+
+linkCity="https://github.com/EvansDataScience/VAforPM_Spatial/raw/main/citiesloc.xlsx"
+
+
+idxcity=import(linkCity)
+
+```
+
+The data on cities is known (it is a summary) but this files has some location info:
+
+```{r, eval=TRUE}
+str(idxcity)
+```
+
+Let's cluster as before:
+
+```{r, eval=TRUE}
+varsidx=c("DIGITAL","HEALTH","INFRASTRUCTURE","PERSONAL")
+
+set.seed(123)
+distMatrix2=cluster::daisy(idxcity[,varsidx])
+             
+
+res.pam2=pam(distMatrix2,
+             k = 3,
+             cluster.only = F)
+                     
+idxcity$cluster=res.pam2$clustering
+
+```
+
+Let's check the order:
+
+```{r, eval=TRUE}
+
+varsidx=c(varsidx,'cluster')
+aggregate(data=idxcity[,varsidx],
+          .~cluster,
+          FUN=median)
+```
+
+We could improve the labels:
+```{r, eval=TRUE}
+idxcity$cluster=factor(idxcity$cluster,
+                       levels=c(3,1,2),
+                       labels=c("bad","middle",'good'),
+                       ordered=T)
+```
+
+
+Let me use the location of the city to create a spatial points object:
+
+```{r, eval=TRUE}
+idxcity_sf = st_as_sf(idxcity, 
+                      coords = c("lng", "lat"),
+                      crs = st_crs(mapWorldVars)) # shared
+
+```
+
+Now we have:
+
+```{r, eval=TRUE}
+head(idxcity_sf)
+```
+
+As this is a spatial object let me add it on top of the basemap:
+
+```{r, eval=TRUE}
+base + geom_sf(data=idxcity_sf)
+```
+
+
+
+Finally:
+
+```{r, eval=TRUE}
+#previously
+fillLabels=c('1_worst',2,'3_best')
+fillTitle="Cities safety"
+nameSize="Population \n(in millions)"
+
+points= base + geom_sf(data=idxcity_sf,
+                       shape=21,
+                       aes(fill=cluster,
+                           size=population/1000000)) 
+#now
+points = points + scale_fill_brewer(palette ='YlOrRd',
+                                direction = -1,
+                                labels=fillLabels,
+                                name=fillTitle)
+points =points + scale_size(name=nameSize,
+                            range = c(0.2,5))
+points
+```
+
+
+We can alter the legend position:
+
+```{r, eval=TRUE}
+points +     theme(legend.position="bottom", 
+          legend.box = "vertical") #+ guides(fill=FALSE)
+```
+
+

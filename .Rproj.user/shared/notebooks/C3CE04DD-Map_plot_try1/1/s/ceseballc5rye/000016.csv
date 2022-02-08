@@ -1,0 +1,4 @@
+"0","base=ggplot(data=mapUSA) + geom_sf(fill='grey90',"
+"0","                                   color=NA) + theme_classic()"
+"0","base2 = base + coord_sf(xlim = c(-125, -70), ylim = c(25, 49))"
+"0","base2"
