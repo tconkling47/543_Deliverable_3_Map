@@ -1,0 +1,10 @@
+"0","titleText=""Public Universities Produce Low Student Debt Burdens"""
+"0","subtitleText=""Data From State Flagship Public Universities"""
+"0","sourceText='Source: US Department of Education'"
+"0","points2 = points + labs(title=titleText,"
+"0","                             subtitle = subtitleText,"
+"0","                   caption = sourceText)"
+"0","points2"
+"2","Warning:"
+"2"," Using size for a discrete variable is not advised.
+"

@@ -153,8 +153,8 @@ points
 ```
 
 ```{r}
-titleText="Flagship Public Universities Enroll Large Student Populations"
-subtitleText="Who Have Relatively Low Student Debt Burdens After Graduation"
+titleText="Public Universities Produce Low Student Debt Burdens"
+subtitleText="Data From State Flagship Public Universities"
 sourceText='Source: US Department of Education'
 points2 = points + labs(title=titleText,
                              subtitle = subtitleText,
@@ -165,7 +165,7 @@ points2
 ```{r}
 points3 = points2 + theme(plot.caption = element_text(hjust = 0),
        plot.title = element_text(face = 'bold', size = 13, hjust=0, vjust = 0),
-       plot.subtitle = element_text(face = 'bold', size = 13, hjust=0, vjust=0)
+       plot.subtitle = element_text(face = 'bold', size = 9, hjust=0, vjust=0)
 )
 points3
 ```

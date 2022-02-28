@@ -1,0 +1,2 @@
+"0","flagships2 <- flagships%>%"
+"0","  select(UNITID, INSTNM, UGDS, TUITIONFEE_IN, LONGITUDE, LATITUDE)"

@@ -1,0 +1,2 @@
+"0","data2 <- transform(data1, DEBT_ALL_STGP_ANY_N = as.numeric(DEBT_ALL_STGP_ANY_N),"
+"0","                    DEBT_ALL_STGP_ANY_MEAN = as.numeric(DEBT_ALL_STGP_ANY_MEAN))"
